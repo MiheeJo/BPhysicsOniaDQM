@@ -18,8 +18,6 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
-#include <vector>
-#include <algorithm>
 #include <string>
 #include <cmath>
 #include <map>
@@ -32,10 +30,10 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
 
   /// Constructor
   BPhysicsOniaDQM(const edm::ParameterSet&);
-  
+
   /// Destructor
   virtual ~BPhysicsOniaDQM();
-  
+
   /// Inizialize parameters for histo binning
   void beginJob();
 
@@ -45,8 +43,6 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   void endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup);
   void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-
-  /// Save the histos
   void endJob(void);
 
  private:
@@ -57,7 +53,7 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   bool selTrackerMuon(const reco::Muon &recoMu);
 
   // ----------member data ---------------------------
-  
+
   DQMStore* theDbe;
   // Switch for verbosity
   std::string metname;
@@ -66,20 +62,28 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   edm::InputTag theMuonCollectionLabel;
 
   //The histos
-  MonitorElement* diMuonMass_global;
-  MonitorElement* diMuonMass_tracker;
-  MonitorElement* diMuonMass_standalone;
-  MonitorElement* global_background;
-  MonitorElement* tracker_background;
-  MonitorElement* standalone_background;
-  MonitorElement* yieldJPsi_lumi;
+  MonitorElement* glbSigCut;
+  MonitorElement* glbSigNoCut;
+  MonitorElement* glbBkgNoCut;
+  MonitorElement* staSigCut;
+  MonitorElement* staSigNoCut;
+  MonitorElement* staBkgNoCut;
+  MonitorElement* trkSigCut;
+  MonitorElement* trkSigNoCut;
+  MonitorElement* trkBkgNoCut;
+
+  MonitorElement* JPsiGlbYdLumi;
+  MonitorElement* JPsiStaYdLumi;
+  MonitorElement* JPsiTrkYdLumi;
 
   //Yield of dimuon objects
   int jpsiGlbSigPerLS;
+  int jpsiStaSigPerLS;
   int jpsiTrkSigPerLS;
   std::map<int,int> jpsiGlbSig;
+  std::map<int,int> jpsiStaSig;
   std::map<int,int> jpsiTrkSig;
 
   math::XYZPoint RefVtx;
 };
-#endif  
+#endif
