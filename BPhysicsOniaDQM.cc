@@ -31,11 +31,10 @@ using namespace edm;
 using namespace reco;
 
 BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
-  cout << "constructor\n";  
   // Muon Collection Label
-//  theMuonCollectionLabel = parameters.getParameter<InputTag>("MuonCollection");
-  cout << "after muon collection label\n";
-  /*glbSigCut = NULL;
+  theMuonCollectionLabel = parameters.getParameter<InputTag>("MuonCollection");
+  
+  glbSigCut = NULL;
   glbSigNoCut = NULL;
   glbBkgNoCut = NULL;
   staSigCut = NULL;
@@ -47,14 +46,13 @@ BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
 
   JPsiGlbYdLumi = NULL;
   JPsiStaYdLumi = NULL;
-  JPsiTrkYdLumi = NULL;*/
+  JPsiTrkYdLumi = NULL;
 }
 
 BPhysicsOniaDQM::~BPhysicsOniaDQM() { 
 }
 
 void BPhysicsOniaDQM::beginJob() {
-  cout << "BeginJob \n";
   // the services
   theDbe = Service<DQMStore>().operator->();
 
@@ -79,7 +77,6 @@ void BPhysicsOniaDQM::beginJob() {
 void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   LogTrace(metname)<<"[BPhysicsOniaDQM] Analysis of event # ";
-  cout << "analyze\n";
   
   // Take the STA muon container
   Handle<MuonCollection> muons;
@@ -185,7 +182,7 @@ void BPhysicsOniaDQM::endJob(void) {
 void BPhysicsOniaDQM::beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup)
 {
   LogTrace(metname)<<"[BPhysicsOniaDQM] Start of a LuminosityBlock";
-  cout << "Begin luminosity block\n";
+  
   jpsiGlbSigPerLS = 0;
   jpsiStaSigPerLS = 0;
   jpsiTrkSigPerLS = 0;
@@ -194,7 +191,6 @@ void BPhysicsOniaDQM::beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock
 void BPhysicsOniaDQM::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup)
 {
   LogTrace(metname)<<"[BPhysicsOniaDQM] Start of a LuminosityBlock";
-  cout << "End luminosity block\n";
 
   edm::Handle<LumiSummary> lumiSummary;
   lumiBlock.getByLabel("lumiProducer",lumiSummary);
@@ -204,7 +200,7 @@ void BPhysicsOniaDQM::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, 
   jpsiGlbSig.insert( pair<int,int>(LBlockNum, jpsiGlbSigPerLS) );
   jpsiStaSig.insert( pair<int,int>(LBlockNum, jpsiStaSigPerLS) );
   jpsiTrkSig.insert( pair<int,int>(LBlockNum, jpsiTrkSigPerLS) );
-  cout << "lumi: " << LBlockNum << "\t" << jpsiGlbSig[LBlockNum] << "\t" << jpsiStaSig[LBlockNum] << "\t" << jpsiTrkSig[LBlockNum] << endl;
+//  cout << "lumi: " << LBlockNum << "\t" << jpsiGlbSig[LBlockNum] << "\t" << jpsiStaSig[LBlockNum] << "\t" << jpsiTrkSig[LBlockNum] << endl;
   
   theDbe->setCurrentFolder("Physics/BPhysics");
   if(JPsiGlbYdLumi!=NULL) {
@@ -216,7 +212,7 @@ void BPhysicsOniaDQM::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, 
   int xmin = (*jpsiGlbSig.begin()).first;
   int xmax = (*jpsiGlbSig.rbegin()).first;
   int nx   = xmax - xmin + 1;
-  cout << "x-axis " << xmin << " " << xmax << endl;
+//  cout << "x-axis " << xmin << " " << xmax << endl;
 
   JPsiGlbYdLumi = theDbe->book1D("JPsiGlbYdLumi", "JPsi yield from global-global dimuon", nx, xmin, xmax);
   JPsiStaYdLumi = theDbe->book1D("JPsiStaYdLumi", "JPsi yield from standalone-standalone dimuon", nx, xmin, xmax);
@@ -233,22 +229,21 @@ void BPhysicsOniaDQM::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, 
     JPsiGlbYdLumi->setBinContent(bin,(*glb).second);
     JPsiStaYdLumi->setBinContent(bin,(*sta).second);
     JPsiTrkYdLumi->setBinContent(bin,(*trk).second);
-    cout << "glb: " << bin << "\t" << (*glb).first << "\t" << (*glb).second << endl;
-    cout << "sta: " << bin << "\t" << (*sta).first << "\t" << (*sta).second << endl;
-    cout << "trk: " << bin << "\t" << (*trk).first << "\t" << (*trk).second << endl;
+//    cout << "glb: " << bin << "\t" << (*glb).first << "\t" << (*glb).second << endl;
+//    cout << "sta: " << bin << "\t" << (*sta).first << "\t" << (*sta).second << endl;
+//    cout << "trk: " << bin << "\t" << (*trk).first << "\t" << (*trk).second << endl;
   }
 }
 
 void BPhysicsOniaDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   LogTrace(metname)<<"[BPhysicsOniaDQM] Start of a Run";
-  cout << "Start of a Run\n";
 }
 
 void BPhysicsOniaDQM::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   LogTrace(metname)<<"[BPhysicsOniaDQM] End of a Run";
-  cout << "End of a Run\n";
+  
   if (!jpsiGlbSig.empty()) {
     jpsiGlbSig.clear();
     jpsiStaSig.clear();
