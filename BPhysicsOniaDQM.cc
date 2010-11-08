@@ -33,6 +33,7 @@ using namespace reco;
 BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
   // Muon Collection Label
   theMuonCollectionLabel = parameters.getParameter<InputTag>("MuonCollection");
+  vertex = parameters.getParameter<InputTag>("vertex");
 
   global_background = NULL;
   diMuonMass_global = NULL;
@@ -97,7 +98,7 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByLabel(theMuonCollectionLabel,muons);
 
   Handle<reco::VertexCollection> privtxs;
-  iEvent.getByLabel("offlinePrimaryVertices",privtxs);
+  iEvent.getByLabel(vertex,privtxs);
   VertexCollection::const_iterator privtx;
 
   if(privtxs->begin() != privtxs->end()){

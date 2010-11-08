@@ -55,6 +55,8 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   // ----------member data ---------------------------
 
   DQMStore* theDbe;
+  
+  edm::InputTag vertex;
   // Switch for verbosity
   std::string metname;
 
