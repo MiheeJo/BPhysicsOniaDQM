@@ -6,8 +6,8 @@
  *
  *  DQM offline for quarkonia
  *
- *  $Date: 2010/07/19 19:54:13 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/09/21 14:47:44 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
@@ -62,6 +62,13 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   edm::InputTag theMuonCollectionLabel;
 
   //The histos
+  MonitorElement* diMuonMass_global;
+  MonitorElement* diMuonMass_tracker;
+  MonitorElement* diMuonMass_standalone;
+  MonitorElement* global_background;
+  MonitorElement* tracker_background;
+  MonitorElement* standalone_background;
+
   MonitorElement* glbSigCut;
   MonitorElement* glbSigNoCut;
   MonitorElement* glbBkgNoCut;
