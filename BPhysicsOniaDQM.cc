@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/21 14:47:41 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/11/11 17:33:03 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi, Erik - CERN
  */
 
@@ -45,16 +45,11 @@ BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
   glbSigCut = NULL;
   glbSigNoCut = NULL;
   glbBkgNoCut = NULL;
-  staSigCut = NULL;
   staSigNoCut = NULL;
   staBkgNoCut = NULL;
   trkSigCut = NULL;
   trkSigNoCut = NULL;
   trkBkgNoCut = NULL;
-
-  JPsiGlbYdLumi = NULL;
-  JPsiStaYdLumi = NULL;
-  JPsiTrkYdLumi = NULL;
 }
 
 BPhysicsOniaDQM::~BPhysicsOniaDQM() { 
@@ -79,7 +74,6 @@ void BPhysicsOniaDQM::beginJob() {
     glbSigCut = theDbe->book1D("glbSigCut", "Opposite-sign glb-glb dimuon mass", 650, 0, 130);
     glbSigNoCut = theDbe->book1D("glbSigNoCut", "Opposite-sign glb-glb dimuon mass (no cut)", 650, 0, 130);
     glbBkgNoCut = theDbe->book1D("glbBkgNoCut", "Same-sign glb-glb dimuon mass (no cut)", 650, 0, 130);
-    staSigCut = theDbe->book1D("staSigCut", "Opposite-sign sta-sta dimuon mass", 430, 0, 129);
     staSigNoCut = theDbe->book1D("staSigNoCut", "Opposite-sign sta-sta dimuon mass (no cut)", 430, 0, 129);
     staBkgNoCut  = theDbe->book1D("staBkgNoCut", "Same-sign sta-sta dimuon mass (no cut)", 430, 0, 129);
     trkSigCut = theDbe->book1D("trkSigCut", "Opposite-sign trk-trk dimuon mass", 650, 0, 130);
@@ -131,12 +125,11 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
                 glbSigNoCut->Fill(massJPsi);
                 if (selGlobalMuon(*recoMu1) && selGlobalMuon(*recoMu2)) {
                   if (glbSigCut!=NULL) glbSigCut->Fill(massJPsi);
-                  if (massJPsi >= 3.0 && massJPsi <= 3.2) jpsiGlbSigPerLS++;
                 }
               }
             } else {
               if(global_background!=NULL){  // BPhysicsOniaDQM original one
-                global_background->Fill (massJPsi);
+                global_background->Fill(massJPsi);
               }
 
               if(glbBkgNoCut!=NULL){
@@ -160,14 +153,10 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
               if(staSigNoCut!=NULL){
                 staSigNoCut->Fill(massJPsi);
-                /*if (selStandaloneMuon(*recoMu1) && selStandaloneMuon(*recoMu2)) {
-                  if (staSigCut!=NULL) staSigCut->Fill(massJPsi);
-                  if (massJPsi >= 3.0 && massJPsi <= 3.2) jpsiStaSigPerLS++;
-                }*/
               }
             } else {
               if(standalone_background!=NULL){
-                standalone_background->Fill (massJPsi);
+                standalone_background->Fill(massJPsi);
               }
 
               if(staBkgNoCut!=NULL){
@@ -193,7 +182,6 @@ void BPhysicsOniaDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
                 trkSigNoCut->Fill(massJPsi);
                 if (selTrackerMuon(*recoMu1) && selTrackerMuon(*recoMu2)) {
                   if (trkSigCut!=NULL) trkSigCut->Fill(massJPsi);
-                  if(massJPsi >= 3.0 && massJPsi <= 3.2) jpsiTrkSigPerLS++;
                 }
               }
             } else {
@@ -218,64 +206,6 @@ void BPhysicsOniaDQM::endJob(void) {
   LogTrace(metname)<<"[BPhysicsOniaDQM] EndJob";
 }
 
-void BPhysicsOniaDQM::beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup)
-{
-  LogTrace(metname)<<"[BPhysicsOniaDQM] Start of a LuminosityBlock";
-  
-  jpsiGlbSigPerLS = 0;
-  jpsiStaSigPerLS = 0;
-  jpsiTrkSigPerLS = 0;
-}
-
-void BPhysicsOniaDQM::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup)
-{
-  LogTrace(metname)<<"[BPhysicsOniaDQM] Start of a LuminosityBlock";
-
-  edm::Handle<LumiSummary> lumiSummary;
-  lumiBlock.getByLabel("lumiProducer",lumiSummary);
-
-  int LBlockNum = lumiBlock.id().luminosityBlock();
-  
-  jpsiGlbSig.insert( pair<int,int>(LBlockNum, jpsiGlbSigPerLS) );
-  jpsiStaSig.insert( pair<int,int>(LBlockNum, jpsiStaSigPerLS) );
-  jpsiTrkSig.insert( pair<int,int>(LBlockNum, jpsiTrkSigPerLS) );
-//  cout << "lumi: " << LBlockNum << "\t" << jpsiGlbSig[LBlockNum] << "\t" << jpsiStaSig[LBlockNum] << "\t" << jpsiTrkSig[LBlockNum] << endl;
-
-  if (jpsiGlbSig.size()%5 != 0) return;
-
-  theDbe->setCurrentFolder("Physics/BPhysics");
-  if(JPsiGlbYdLumi!=NULL) {
-    theDbe->removeElement("JPsiGlbYdLumi");   // Remove histograms from previous run
-    theDbe->removeElement("JPsiStaYdLumi");
-    theDbe->removeElement("JPsiTrkYdLumi");
-  }
-
-  int xmin = (*jpsiGlbSig.begin()).first;
-  int xmax = (*jpsiGlbSig.rbegin()).first;
-  int nx   = (xmax - xmin + 1)/5 + 1; // Merge 5 lumisections into 1 bin
-//  cout << "x-axis " << xmin << " " << xmax << endl;
-
-  JPsiGlbYdLumi = theDbe->book1D("JPsiGlbYdLumi", "JPsi yield from global-global dimuon", nx, xmin, xmax);
-  JPsiStaYdLumi = theDbe->book1D("JPsiStaYdLumi", "JPsi yield from standalone-standalone dimuon", nx, xmin, xmax);
-  JPsiTrkYdLumi = theDbe->book1D("JPsiTrkYdLumi", "JPsi yield from tracker-tracker dimuon", nx, xmin, xmax);
-
-  map<int,int>::iterator glb;
-  map<int,int>::iterator sta;
-  map<int,int>::iterator trk;
-  for (glb = jpsiGlbSig.begin(); glb != jpsiGlbSig.end(); ++glb)
-  {
-    int bin = ((*glb).first - xmin + 1)/5 + 1;  //X-axis bin #
-    sta = jpsiStaSig.find((*glb).first);
-    trk = jpsiTrkSig.find((*glb).first);
-    JPsiGlbYdLumi->setBinContent(bin,JPsiGlbYdLumi->getBinContent(bin)+(*glb).second);
-    JPsiStaYdLumi->setBinContent(bin,JPsiStaYdLumi->getBinContent(bin)+(*sta).second);
-    JPsiTrkYdLumi->setBinContent(bin,JPsiTrkYdLumi->getBinContent(bin)+(*trk).second);
-//    cout << "glb: " << bin << "\t" << (*glb).first << "\t" << (*glb).second << endl;
-//    cout << "sta: " << bin << "\t" << (*sta).first << "\t" << (*sta).second << endl;
-//    cout << "trk: " << bin << "\t" << (*trk).first << "\t" << (*trk).second << endl;
-  }
-}
-
 void BPhysicsOniaDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   LogTrace(metname)<<"[BPhysicsOniaDQM] Start of a Run";
@@ -284,12 +214,6 @@ void BPhysicsOniaDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 void BPhysicsOniaDQM::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   LogTrace(metname)<<"[BPhysicsOniaDQM] End of a Run";
-  
-  if (!jpsiGlbSig.empty()) {
-    jpsiGlbSig.clear();
-    jpsiStaSig.clear();
-    jpsiTrkSig.clear();
-  }
 }
 
 float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1,const math::XYZVector &vec2){
@@ -317,10 +241,11 @@ float BPhysicsOniaDQM::computeMass(const math::XYZVector &vec1,const math::XYZVe
 bool BPhysicsOniaDQM::isMuonInAccept(const reco::Muon &recoMu)
 {
   return (fabs(recoMu.eta()) < 2.4 &&
-         ((fabs(recoMu.eta()) < 1.3 && recoMu.pt() > 3.3) ||
-          (fabs(recoMu.eta()) > 1.3 && fabs(recoMu.eta()) < 2.2 && recoMu.p() > 2.9) ||
-          (fabs(recoMu.eta()) > 2.2 && recoMu.pt() > 0.8)));
+        ((fabs(recoMu.eta()) < 1.0 && recoMu.pt() >= 3.4) ||
+         (1.0 <= fabs(recoMu.eta()) && fabs(recoMu.eta()) < 1.5 && recoMu.pt() >= 5.8-2.4*fabs(recoMu.eta())) ||
+         (1.5 <= fabs(recoMu.eta()) && recoMu.pt() >= 3.3667-7.0/9.0*fabs(recoMu.eta()))));
 }
+
 
 bool BPhysicsOniaDQM::selGlobalMuon(const reco::Muon &recoMu)
 {
@@ -331,13 +256,10 @@ bool BPhysicsOniaDQM::selGlobalMuon(const reco::Muon &recoMu)
   const reco::HitPattern &q = gTrack->hitPattern();
 
   return (isMuonInAccept(recoMu) &&
-          iTrack->found() > 11 &&
+          iTrack->found() > 10 &&
           gTrack->chi2()/gTrack->ndof() < 20.0 &&
-          q.numberOfValidMuonHits() > 0 &&
           iTrack->chi2()/iTrack->ndof() < 4.0 &&
-          //recoMu.muonID("TrackerMuonArbitrated") &&
-          //recoMu.muonID("TMLastStationAngTight") &&
-          p.pixelLayersWithMeasurement() > 1 &&
+          p.pixelLayersWithMeasurement() > 0 &&
           fabs(iTrack->dxy(RefVtx)) < 3.0 &&
           fabs(iTrack->dz(RefVtx)) < 15.0 );
 }
@@ -348,11 +270,10 @@ bool BPhysicsOniaDQM::selTrackerMuon(const reco::Muon &recoMu)
   const reco::HitPattern &p = iTrack->hitPattern();
 
   return (isMuonInAccept(recoMu) &&
-          iTrack->found() > 11 &&
+          iTrack->found() > 10 &&
           iTrack->chi2()/iTrack->ndof() < 4.0 &&
-          //recoMu.muonID("TrackerMuonArbitrated") &&
-          //recoMu.muonID("TMLastStationAngTight") &&
-          p.pixelLayersWithMeasurement() > 1 &&
+          p.pixelLayersWithMeasurement() > 0 &&
           fabs(iTrack->dxy(RefVtx)) < 3.0 &&
           fabs(iTrack->dz(RefVtx)) < 15.0 );
 }
+

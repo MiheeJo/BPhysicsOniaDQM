@@ -6,8 +6,8 @@
  *
  *  DQM offline for quarkonia
  *
- *  $Date: 2010/09/21 14:47:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/11/11 17:33:03 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
@@ -39,8 +39,6 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
-  void beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup);
-  void endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup);
   void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   void endJob(void);
@@ -74,25 +72,13 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   MonitorElement* glbSigCut;
   MonitorElement* glbSigNoCut;
   MonitorElement* glbBkgNoCut;
-  MonitorElement* staSigCut;
   MonitorElement* staSigNoCut;
   MonitorElement* staBkgNoCut;
   MonitorElement* trkSigCut;
   MonitorElement* trkSigNoCut;
   MonitorElement* trkBkgNoCut;
 
-  MonitorElement* JPsiGlbYdLumi;
-  MonitorElement* JPsiStaYdLumi;
-  MonitorElement* JPsiTrkYdLumi;
-
-  //Yield of dimuon objects
-  int jpsiGlbSigPerLS;
-  int jpsiStaSigPerLS;
-  int jpsiTrkSigPerLS;
-  std::map<int,int> jpsiGlbSig;
-  std::map<int,int> jpsiStaSig;
-  std::map<int,int> jpsiTrkSig;
-
   math::XYZPoint RefVtx;
 };
 #endif
+
